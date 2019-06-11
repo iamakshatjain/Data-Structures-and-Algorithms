@@ -75,18 +75,53 @@ void display_graph(graph* g){
 
 }
 
+void DFS(graph *g,int i,int v[]){//this is actually the function to visit the nodes
+	// if(v[i]!=0)
+		// return;
+	v[i] = 1;//this node is now visited
+	cout<<g->list[i].vertex<<' ';
+	ListNode *itr = &(g->list[i]);//this ith node is now visited
+	itr = itr->next;
+	while(itr->vertex != g->list[i].vertex){//traverse through all the adjacent nodes
+		if(v[itr->vertex]==0)//if any adjacent node is not visited
+			DFS(g,itr->vertex,v);//we visit the node 
+		itr = itr->next;
+	}
+}
+
+void DFS_Traversal(graph *g){
+	cout<<endl;
+	int visited[g->v] = {0};//all elements initialized to zero
+	for(int i = 0;i<g->v;i++){//for each vertex apply dfs
+		if(visited[i]==0)
+			DFS(g,i,visited);
+	}
+	cout<<endl;
+}
+
 int main(){
-	graph *g  = create_graph(5,4);
+	graph *g  = create_graph(8,8);
 	g?cout<<"created":cout<<"not-created";
 	cout<<endl;
 	add_edge(g,0,1);
-	add_edge(g,0,3);
-	add_edge(g,0,2);
 	add_edge(g,1,2);
 	add_edge(g,2,3);
-	add_edge(g,3,4);
+	add_edge(g,1,7);
+	add_edge(g,2,4);
+	add_edge(g,4,7);
+	add_edge(g,4,5);
+	add_edge(g,4,6);
+
+	add_edge(g,1,0);
+	add_edge(g,2,1);
+	add_edge(g,3,2);
+	add_edge(g,7,1);
 	add_edge(g,4,2);
-	display_graph(g);
+	add_edge(g,7,4);
+	add_edge(g,5,4);
+	add_edge(g,6,4);
+	DFS_Traversal(g);
+	// display_graph(g);
 	cout<<endl;
 	return 0;
 }
