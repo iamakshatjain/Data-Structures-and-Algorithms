@@ -93,11 +93,64 @@ void DFS_Traversal(graph *g){
 	cout<<endl;
 	int visited[g->v] = {0};//all elements initialized to zero
 	for(int i = 0;i<g->v;i++){//for each vertex apply dfs
-		if(visited[i]==0)
+		if(visited[i]==0)//this would actually be true once. It traverse all elements in one starting node.
 			DFS(g,i,visited);
 	}
 	cout<<endl;
 }
+
+//we also need to implement a queue
+void BFS(graph *g,int v[],int w){
+	int u;
+
+	int q[g->v];
+	int f = -1;
+	int r = -1;
+
+	// if(f<=r && r<g->v-1){
+	q[++r] = w;
+	if(f==-1)
+		f++;
+	// }
+
+	while(f<=r){//we dequeue when the queue is not empty
+		u = q[f];//dequeue
+		if(v[u] == 1){//very important condition
+			f++;
+			continue;
+		}
+
+		v[u] = 1;
+		cout<<g->list[u].vertex<<' ';
+
+		//this node is now visited
+		ListNode* itr = &(g->list[u]);
+		itr = itr->next;
+		while(itr->vertex != g->list[u].vertex){
+			if (!v[itr->vertex])
+			{
+				r++;
+				q[r] = itr->vertex;
+			}
+			itr = itr->next;
+		}
+		f++;
+	}
+
+
+}
+
+void BFS_Traversal(graph *g){
+	cout<<endl;
+	int visited[g->v] = {0};
+
+	for(int i=0;i<g->v;i++){
+		if(!visited[i]){
+			BFS(g,visited,i);
+		}
+	}
+}
+
 
 int main(){
 	graph *g  = create_graph(8,8);
@@ -120,7 +173,7 @@ int main(){
 	add_edge(g,7,4);
 	add_edge(g,5,4);
 	add_edge(g,6,4);
-	DFS_Traversal(g);
+	BFS_Traversal(g);
 	// display_graph(g);
 	cout<<endl;
 	return 0;
