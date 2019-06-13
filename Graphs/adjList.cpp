@@ -155,12 +155,18 @@ void BFS_Traversal(graph *g){
 void Topological_sort(graph *g){
 	cout<<endl;
 	//first step is to find the indegree
+	int indcount = 0;
 	int indegree[g->v] = {0};
 	for(int i=0;i<g->v;i++){
 		ListNode* itr = &(g->list[i]);
 		itr = itr->next;
 		while(itr->vertex!=g->list[i].vertex){
 			indegree[itr->vertex]++;
+			indcount++;
+			if(indcount>g->e){
+				cout<<"maybe undirected/cycle"<<endl;
+				return;
+			}
 			itr = itr->next;
 		}
 	}
@@ -182,6 +188,12 @@ void Topological_sort(graph *g){
 		int u = queue[f];//dequeue
 		cout<<u<<' '; 
 		++counter;
+
+		if(counter != g->v){
+			cout<<"maybe cycle present!"<<endl;
+			break;
+		}
+
 		ListNode* itr = &(g->list[u]);
 		itr = itr->next;
 		while(itr->vertex!=g->list[u].vertex){
@@ -191,19 +203,15 @@ void Topological_sort(graph *g){
 			}
 			itr = itr->next;
 		}
-
+	
 		f++;
 	}
-
-	if(counter != g->v)
-		cout<<"cycle present!"<<endl;
-
 	cout<<endl;
 }
 
 
 int main(){
-	graph *g  = create_graph(8,8);
+	graph *g  = create_graph(8,16);
 	g?cout<<"created":cout<<"not-created";
 	cout<<endl;
 
@@ -216,14 +224,14 @@ int main(){
 	add_edge(g,4,5);
 	add_edge(g,4,6);
 
-	// add_edge(g,1,0);
-	// add_edge(g,2,1);
-	// add_edge(g,3,2);
-	// add_edge(g,7,1);
-	// add_edge(g,4,2);
-	// add_edge(g,7,4);
-	// add_edge(g,5,4);
-	// add_edge(g,6,4);
+	add_edge(g,1,0);
+	add_edge(g,2,1);
+	add_edge(g,3,2);
+	add_edge(g,7,1);
+	add_edge(g,4,2);
+	add_edge(g,7,4);
+	add_edge(g,5,4);
+	add_edge(g,6,4);
 
 	// add_edge(g,0,3);
 	// add_edge(g,0,4);
