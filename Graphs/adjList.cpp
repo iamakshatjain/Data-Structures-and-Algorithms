@@ -1,6 +1,7 @@
 #include <bits/stdc++.h>
 #include <iostream>
 using namespace std;
+//the graph below is an unweighted graph
 
 //Node of the adjacency list
 struct ListNode{
@@ -209,42 +210,85 @@ void Topological_sort(graph *g){
 	cout<<endl;
 }
 
+void initialize(int distance[],int parent[],int l){
+	for(int i=0;i<l;i++){
+		if(i==0){
+			distance[i] = 0;
+		}
+
+		distance[i] = 100000;
+		parent[i] = -1;
+	}
+}
+
+void dijkastra_unweighted(graph *g,int source){
+	//unweighted graph dijkastra works with a queue, a distance array and a parent array
+	int distance[g->v];
+	int parent[g->v];
+	initialize(distance,parent,g->v);
+	int queue[g->v];
+	int f = -1;
+	int r = -1;
+
+	queue[++r] = source;
+	f++;
+	distance[source] = 0;
+	while(f<=r){//O(V), since now the elements would arive only once
+		int u = queue[f];//dequeue
+		ListNode *itr = &(g->list[u]);
+		itr=itr->next;
+		while(itr->vertex!=g->list[u].vertex){//O(E) in total
+			if(distance[itr->vertex] == 100000){
+				parent[itr->vertex] = u;
+				distance[itr->vertex] = distance[u]+1;
+				queue[++r] = itr->vertex;//enqueue only the elements with INFINITE distance, this way elements come only once
+			}
+			itr = itr->next;
+		}
+		f++;
+	}
+	cout<<"ele    dist    par"<<endl;
+	for(int i=0;i<g->v;i++){
+		cout<<i<<'\t'<<distance[i]<<'\t'<<parent[i]<<endl;
+	}
+}
 
 int main(){
-	graph *g  = create_graph(8,16);
+	graph *g  = create_graph(7,10);
 	g?cout<<"created":cout<<"not-created";
 	cout<<endl;
 
-	add_edge(g,0,1);
-	add_edge(g,1,2);
-	add_edge(g,2,3);
-	add_edge(g,1,7);
-	add_edge(g,2,4);
-	add_edge(g,4,7);
-	add_edge(g,4,5);
-	add_edge(g,4,6);
-
-	add_edge(g,1,0);
-	add_edge(g,2,1);
-	add_edge(g,3,2);
-	add_edge(g,7,1);
-	add_edge(g,4,2);
-	add_edge(g,7,4);
-	add_edge(g,5,4);
-	add_edge(g,6,4);
-
-	// add_edge(g,0,3);
-	// add_edge(g,0,4);
-	// add_edge(g,1,3);
+	//graph in book for traversals
+	// add_edge(g,0,1);
+	// add_edge(g,1,2);
+	// add_edge(g,2,3);
+	// add_edge(g,1,7);
 	// add_edge(g,2,4);
 	// add_edge(g,4,7);
-	// add_edge(g,3,5);
-	// add_edge(g,3,6);
-	// add_edge(g,3,7);
+	// add_edge(g,4,5);
 	// add_edge(g,4,6);
-	// BFS_Traversal(g);
-	Topological_sort(g);
-	// display_graph(g);
+
+	// add_edge(g,1,0);
+	// add_edge(g,2,1);
+	// add_edge(g,3,2);
+	// add_edge(g,7,1);
+	// add_edge(g,4,2);
+	// add_edge(g,7,4);
+	// add_edge(g,5,4);
+	// add_edge(g,6,4);
+
+	add_edge(g,0,1);
+	add_edge(g,0,3);
+	add_edge(g,1,3);
+	add_edge(g,1,4);
+	add_edge(g,2,0);
+	add_edge(g,2,5);
+	add_edge(g,3,5);
+	add_edge(g,3,6);
+	add_edge(g,4,6);
+	add_edge(g,6,5);
+	dijkastra_unweighted(g,2);
+		
 	cout<<endl;
 	return 0;
 }
