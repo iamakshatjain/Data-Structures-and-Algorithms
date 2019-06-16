@@ -62,6 +62,83 @@ void add_edge(graph *g,int u,int v,int weight){
 	itr->next = node;
 }
 
+void initialize(int d[],int p[],int done[],graph* g){
+	for(int i=0;i<g->v;i++){
+		d[i] = -1;
+		p[i] = -1;
+		done[i] = 0;
+	}
+	return;
+}
+
+int completed(int d[],graph* g){
+	for(int i=0;i<g->v;i++){
+		if(d[i]==0)
+			return 0;
+	}
+	return 1;
+}
+
+int find_min(int d[],graph* g,int done[]){
+	int min = -1;
+	for(int i=0;i<g->v;i++){
+		if(min == -1 && d[i]!=-1 && done[i]==0)
+			min = i;
+
+		if(min!=-1 && d[i]<d[min] && d[i]!=-1 && done[i]==0)
+			min = i;
+	}
+	return min;
+}
+
+int cost(int u,int v,graph* g){
+	ListNode* itr = &(g->list[u]);
+	itr = itr->next;
+	while(itr->vertex!=v){
+		// if(!done[itr->vertex]){
+		// 	relax(u,itr->vertex,distance,parent,g);
+		// }
+		itr = itr->next;
+	}
+	return itr->weight;
+}
+
+void relax(int u,int v,int distance[],int parent[],graph* g){
+	if(distance[u]+cost(u,v,g) < distance[v] || distance[v] == -1){
+		parent[v] = u;
+		distance[v] = distance[u]+cost(u,v,g);
+	}
+}
+
+void dijkastra(graph *g,int source){
+	int distance[g->v];
+	int parent[g->v];
+	int done[g->v];
+	initialize(distance,parent,done,g);
+	distance[source] = 0;
+	cout<<"initialized"<<endl;
+	//we could implement a queue here
+	while(!completed(done,g)){//this condition also is O(v)
+		cout<<"looping"<<endl;
+		int u = find_min(distance,g,done);//this would takeO(v)
+		cout<<"minimum : "<<u<<endl;
+		ListNode* itr = &(g->list[u]);
+		itr = itr->next;
+		while(itr->vertex!=g->list[u].vertex){
+			if(!done[itr->vertex]){
+				relax(u,itr->vertex,distance,parent,g);
+			}
+			itr = itr->next;
+		}
+		done[u] = 1;
+	}
+
+	cout<<"ele\tdist\tpar"<<endl;
+	for(int i=0;i<g->v;i++){
+		cout<<i<<'\t'<<distance[i]<<'\t'<<parent[i]<<endl;
+	}
+}
+
 int main(){
 	graph *g;
 	int v,e;
@@ -78,6 +155,7 @@ int main(){
 	add_edge(g,2,3,4);
 	add_edge(g,1,4,4);
 	add_edge(g,3,4,4);
-
 	display_graph(g);
+	
+	dijkastra(g,0);
 }
