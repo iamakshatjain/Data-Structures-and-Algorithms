@@ -1,5 +1,8 @@
 #include<bits/stdc++.h>
+#include<limits.h>
 #include<iostream>
+#define INF INT_MAX
+
 using namespace std;
 
 struct ListNode{
@@ -139,23 +142,106 @@ void dijkastra(graph *g,int source){
 	}
 }
 
+void initialize_bellman_ford(int d[],int par[],graph* g){
+	for(int i=0;i<g->v;i++){
+		d[i] = INF;//we can't use -1 here as negative edges would be handeled
+		par[i] = -1;
+	}
+}
+
+//returns 1 if not relaxed and return 0 if relaxed : this is to check negative cycle
+int relax(int u, int v,int wt,graph* g,int distance[],int parent[]){
+	// cout<<u<<' '<<v<<endl;
+
+	if(distance[u]!=INF){//here -1 is used to represent infinity
+		if(distance[u]+wt<distance[v]){
+			distance[v] = distance[u]+wt;
+			parent[v] = u;
+			return 0;
+		}
+	}
+	return 1;
+}
+
+
+//returns 1 if negative edge cycle
+int bellman_ford(graph* g,int source){
+	//distance parent 
+	int distance[g->v];
+	int parent[g->v];
+	initialize_bellman_ford(distance,parent,g);
+	distance[source] = 0;
+
+	//here we don't care for the order of checking but we just keep on checking 
+	int u,v;
+	for(int j=0;j<g->v-1;j++){//O(n^3)
+		for(int i=0;i<g->v;i++){//to traverse through all edges
+			ListNode* itr = &(g->list[i]);
+			u = itr->vertex;
+			itr = itr->next;
+			while(itr->vertex!=g->list[i].vertex){
+				// cout<<itr->vertex<<' ';
+				v = itr->vertex;
+				relax(u,v,itr->weight,g,distance,parent);
+				itr = itr->next;
+			}
+		}
+		// cout<<"done "<<j+1<<" times"<<endl;
+	}
+
+	for(int j=0;j<g->v-1;j++){//O(n^3)
+		for(int i=0;i<g->v;i++){//to traverse through all edges
+			ListNode* itr = &(g->list[i]);
+			u = itr->vertex;
+			itr = itr->next;
+			while(itr->vertex!=g->list[i].vertex){
+				// cout<<itr->vertex<<' ';
+				v = itr->vertex;
+				int res = relax(u,v,itr->weight,g,distance,parent);
+				if(res==0){
+					cout<<"Negative-edge-cycle present"<<endl;
+					return 1;
+				}
+				itr = itr->next;
+			}
+		}
+		// cout<<"done "<<j+1<<" times"<<endl;
+	}
+
+	cout<<"ele\tdist\tpar"<<endl;
+	for(int i=0;i<g->v;i++){
+		cout<<i<<'\t'<<distance[i]<<'\t'<<parent[i]<<endl;
+	}
+	return 0;
+	//this doesn't require any done array
+}
+
 int main(){
 	graph *g;
 	int v,e;
 	// cout<<"enter vertex and edge count"<<endl;
 	// cin>>v>>e;
-	g = create_graph(5,6);
+	g = create_graph(4,4);
 	(g==NULL)?cout<<"not-created":cout<<"created";
 	cout<<endl;
 	// display_graph(g);
+	// cout<<"INF : "<<INF<<endl;
 
-	add_edge(g,0,1,4);
-	add_edge(g,0,2,1);
-	add_edge(g,2,1,2);
-	add_edge(g,2,3,4);
-	add_edge(g,1,4,4);
-	add_edge(g,3,4,4);
+	//graph with no-negative edge cycle
+	// add_edge(g,0,1,4);
+	// add_edge(g,0,2,1);
+	// add_edge(g,2,1,2);
+	// add_edge(g,2,3,4);
+	// add_edge(g,1,4,4);
+	// add_edge(g,3,4,4);
+
+	//graph where dijkastra fails but bellman-ford works
+	// add_edge(g,0,1,3);
+	// add_edge(g,0,3,5);
+	// add_edge(g,2,1,-10);
+	// add_edge(g,3,2,2);
 	display_graph(g);
 	
-	dijkastra(g,0);
+	// dijkastra(g,0);
+	bellman_ford(g,0);
 }
