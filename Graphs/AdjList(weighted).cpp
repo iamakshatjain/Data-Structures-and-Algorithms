@@ -205,7 +205,6 @@ int bellman_ford(graph* g,int source){
 				itr = itr->next;
 			}
 		}
-		// cout<<"done "<<j+1<<" times"<<endl;
 	}
 
 	cout<<"ele\tdist\tpar"<<endl;
@@ -216,32 +215,70 @@ int bellman_ford(graph* g,int source){
 	//this doesn't require any done array
 }
 
+void initialize_prims(int k[],int par[],int d[],graph* g){
+	for(int i=0;i<g->v;i++){
+		k[i] = INF;
+		par[i] = -1;
+		d[i] = 0;
+	}
+}
+
+void prims(graph* g){
+	int source = 0;
+	//here due to no need of finding minimum distance there is no effect source node.
+	//also due to undirected graph it doesn't matter what is the source.
+	int key[g->v];
+	int parent[g->v];
+	int done[g->v];
+	initialize_prims(key,parent,done,g);
+
+	key[source] = 0;
+	while(!completed(done,g)){//we can use this from the dijkastra
+		int u = find_min(key,g,done);//this all can be done with priority queue
+		ListNode* itr = &(g->list[u]);
+		itr = itr->next;
+		while(itr->vertex!=g->list[u].vertex){
+			if(key[itr->vertex]>itr->weight && !done[itr->vertex]){//here we must also take care that we don't overwrite an already done vertex
+				key[itr->vertex] = itr->weight;
+				parent[itr->vertex] = u;
+			}
+			itr=itr->next;
+		}
+		done[u] = 1;
+	}
+
+	cout<<"ele\tkey\tpar"<<endl;
+	for(int i=0;i<g->v;i++){
+		cout<<i<<'\t'<<key[i]<<'\t'<<parent[i]<<endl;
+	}
+}
+
 int main(){
 	graph *g;
 	int v,e;
-	// cout<<"enter vertex and edge count"<<endl;
-	// cin>>v>>e;
-	g = create_graph(4,4);
+	g = create_graph(7,8);
 	(g==NULL)?cout<<"not-created":cout<<"created";
 	cout<<endl;
-	// display_graph(g);
-	// cout<<"INF : "<<INF<<endl;
 
 	//graph with no-negative edge cycle
-	// add_edge(g,0,1,4);
-	// add_edge(g,0,2,1);
-	// add_edge(g,2,1,2);
-	// add_edge(g,2,3,4);
-	// add_edge(g,1,4,4);
-	// add_edge(g,3,4,4);
-
-	//graph where dijkastra fails but bellman-ford works
-	// add_edge(g,0,1,3);
-	// add_edge(g,0,3,5);
-	// add_edge(g,2,1,-10);
-	// add_edge(g,3,2,2);
 	display_graph(g);
-	
-	// dijkastra(g,0);
-	bellman_ford(g,0);
+	add_edge(g,0,1,1);
+	add_edge(g,1,0,1);
+	add_edge(g,0,2,3);
+	add_edge(g,2,0,3);
+	add_edge(g,1,3,10);
+	add_edge(g,3,1,10);
+	add_edge(g,1,4,5);
+	add_edge(g,4,1,5);
+	add_edge(g,3,2,4);
+	add_edge(g,2,3,4);
+	add_edge(g,4,5,6);
+	add_edge(g,5,4,6);
+	add_edge(g,5,6,7);
+	add_edge(g,6,5,7);
+	add_edge(g,3,6,3);
+	add_edge(g,6,3,3);
+	display_graph(g);
+	prims(g);
+	return 0;
 }
