@@ -8,6 +8,7 @@ struct graph{
 	int **adj;
 };
 
+//this creates an undirected graph
 graph* create_graph(int v,int e){
 
 	graph *g = (graph*)malloc(sizeof(graph));
@@ -48,11 +49,47 @@ void display_matx(graph *g){
 	}
 }
 
+void DFS_Traverse(graph* g,int i,int d,int v[]){
+	// if(!v[i] && i == d){
+	// 	return 1;
+	// }
+	// cout<<i<<' '<<d<<endl;
+	v[i] = 1;
+
+	for(int j=0;j<g->v;j++){
+		if(g->adj[i][j] && !v[j]){
+			DFS_Traverse(g,j,d,v);
+		}
+	}
+}
+
+int check_path(graph*g,int s,int d){
+	int visited[g->v] = {0};
+	visited[s] = 1;//we have visited the source
+	if(s==d){
+		return 1;
+	}
+	// cout<<s<<endl;
+	for(int i=0;i<g->v;i++){
+		if(g->adj[s][i] && !visited[i]){
+			DFS_Traverse(g,i,d,visited);
+				// return 1;
+		}
+	}
+
+	if(visited[d] == 1){//this is probably the best way to check and also for any other vertex too
+		return 1;		//checking for other vertex after traversal would take only O(1)
+	}
+}
+
 int main(){
 
 	graph *g  = create_graph(5,4);
 	g?cout<<"created":cout<<"not-created";
+	cout<<endl;
 	display_matx(g);
+	cout<<endl;
+	check_path(g,2,3)?cout<<"path-exists":cout<<"path does not exist";
 	cout<<endl;
 	return 0;
 }
