@@ -253,41 +253,96 @@ void dijkastra_unweighted(graph *g,int source){
 	}
 }
 
+//Articulation points by tarjan's algorithm
+int tme = 0;
+
+void articulationUtil(int u,graph* g, int ap[],int visited[],int parent[],int disc[],int low[], int children[]){
+	visited[u] = 1;//the node is now visited
+	disc[u] = low[u] = ++tme;//discovery time and low is initiated
+
+	ListNode* itr = &(g->list[u]);
+	itr = itr->next;
+	while(itr->vertex!=g->list[u].vertex){
+		int v = itr->vertex;
+
+		if(!visited[v]){
+			parent[v] = u;
+			children[u]++;
+			articulationUtil(v,g,ap,visited,parent,disc,low,children);
+			//after the return
+
+			low[u] = min(low[v],low[u]);
+
+			//case1 - if root
+			if(parent[u] == -1 && children[u]>=2){
+				ap[u] = 1;
+			} 
+
+			//case2 - if discovery time is less than low of adjacent vertex
+			if(disc[u]<=low[v] && parent[u]!=-1){
+				ap[u] = 1;
+			}
+		}
+
+		else if(v != parent[u]){//like B and C in tushar roy's video
+			low[u] = min(disc[v],low[u]);
+		}
+		itr = itr->next;
+	}
+
+}
+
+
+void articulation_points(graph *g){
+	int *ap = (int *)malloc(sizeof(int)*g->v);
+	int visited[g->v];
+	int parent[g->v];
+	int disc[g->v];
+	int low[g->v];
+	int children[g->v];
+
+	for(int i=0;i<g->v;i++){
+		ap[i] = 0;
+		visited[i] = 0;
+		parent[i] = -1;
+		disc[i] = -1;
+		low[i] = -1;
+		children[i] = 0;
+	}
+
+	for(int i=0;i<g->v;i++){
+		if(!visited[i])
+			articulationUtil(i,g,ap,visited,parent,disc,low,children);
+	}
+
+	//then here we print ap
+	cout<<"Articulation Point : ";
+	for(int i=0;i<g->v;i++){
+		if(ap[i]==1)
+			cout<<i<<' ';
+	}
+	cout<<endl;
+}
+
 int main(){
-	graph *g  = create_graph(7,10);
+	graph *g  = create_graph(5,10);
 	g?cout<<"created":cout<<"not-created";
 	cout<<endl;
 
-	//graph in book for traversals
-	// add_edge(g,0,1);
-	// add_edge(g,1,2);
-	// add_edge(g,2,3);
-	// add_edge(g,1,7);
-	// add_edge(g,2,4);
-	// add_edge(g,4,7);
-	// add_edge(g,4,5);
-	// add_edge(g,4,6);
-
-	// add_edge(g,1,0);
-	// add_edge(g,2,1);
-	// add_edge(g,3,2);
-	// add_edge(g,7,1);
-	// add_edge(g,4,2);
-	// add_edge(g,7,4);
-	// add_edge(g,5,4);
-	// add_edge(g,6,4);
+	add_edge(g,1,0);
+	add_edge(g,0,2);
+	add_edge(g,0,3);
+	add_edge(g,2,1);
+	add_edge(g,3,4);
 
 	add_edge(g,0,1);
-	add_edge(g,0,3);
-	add_edge(g,1,3);
-	add_edge(g,1,4);
 	add_edge(g,2,0);
-	add_edge(g,2,5);
-	add_edge(g,3,5);
-	add_edge(g,3,6);
-	add_edge(g,4,6);
-	add_edge(g,6,5);
-	dijkastra_unweighted(g,2);
+	add_edge(g,3,0);
+	add_edge(g,1,2);
+	add_edge(g,4,3);
+
+	display_graph(g);
+	articulation_points(g);
 		
 	cout<<endl;
 	return 0;
