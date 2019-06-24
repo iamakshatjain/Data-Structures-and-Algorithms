@@ -324,11 +324,58 @@ void articulation_points(graph *g){
 	cout<<endl;
 }
 
+int t_bridge = 0;
+
+void bridge_util(int u,graph* g,int low[],int disc[],int parent[],int visited[]){
+	visited[u] = 1;
+	disc[u] = low[u] = ++t_bridge;
+
+	ListNode* itr = &(g->list[u]);
+	itr = itr->next;
+	while(itr->vertex!=g->list[u].vertex){
+		int v = itr->vertex;
+
+		if(!visited[v]){
+			parent[v] = u;
+			bridge_util(v,g,low,disc,parent,visited);
+
+			low[u] = min(low[u],low[v]);
+
+			if(low[v] > disc[u])
+				cout<<"( "<<u<<" , "<<v<<" )"<<endl;
+		}
+		else if(v != parent[u])
+			low[u] = min(low[u],disc[v]);
+
+		itr = itr->next;
+	}
+}
+
+void bridge(graph* g){
+	int low[g->v];
+	int disc[g->v];
+	int visited[g->v];
+	int parent[g->v];
+
+	for(int i=0;i<g->v;i++){
+		visited[i] = 0;
+		disc[i] = -1;
+		low[i] = -1;
+		parent[i] = -1;
+	}
+
+	cout<<"Bridges : "<<endl;
+	for(int i=0;i<g->v;i++){
+		if(!visited[i])
+			bridge_util(i,g,low,disc,parent,visited);
+	}
+}
+
 int main(){
-	graph *g  = create_graph(5,10);
+	graph *g  = create_graph(6,14);
 	g?cout<<"created":cout<<"not-created";
 	cout<<endl;
-
+	
 	add_edge(g,1,0);
 	add_edge(g,0,2);
 	add_edge(g,0,3);
@@ -342,7 +389,7 @@ int main(){
 	add_edge(g,4,3);
 
 	display_graph(g);
-	articulation_points(g);
+	bridge(g);
 		
 	cout<<endl;
 	return 0;
