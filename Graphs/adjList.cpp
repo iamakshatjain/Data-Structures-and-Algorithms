@@ -371,26 +371,85 @@ void bridge(graph* g){
 	}
 }
 
+
+//Strongly connected components - TC: O(V+E) ; SC: O(V)
+int top = -1;//this is the top of the stackendl
+void post_order_traversal(graph* g,int u,int visited[],int postOrder[]){
+	visited[u] = 1;
+
+	ListNode* itr = &(g->list[u]);
+	itr = itr->next;
+	while(itr->vertex!=g->list[u].vertex){
+		int v = itr->vertex;
+		if(!visited[v])
+			post_order_traversal(g,v,visited,postOrder);
+		itr = itr->next;
+	}
+	postOrder[++top] = u;
+}
+
+void print_component(graph* g,int u, int visited[]){
+	cout<<u<<' ';
+	visited[u]=1;
+
+	ListNode* itr = &(g->list[u]);
+	itr = itr->next;
+	while(itr->vertex!=g->list[u].vertex){
+		if(!visited[itr->vertex])
+			print_component(g,itr->vertex,visited);
+		itr = itr->next;
+	}
+	return;
+}
+
+void ssc(graph *g){
+	//first perform dfs
+	//get elements on the basis of post-order traversal
+	int visited[g->v] = {0};
+	int postOrder[g->v] = {0};//rather than an array it is better to put to a stack otherwise we need to sort
+	//we can also make the length of the postOrder one greater than g->v and we can use the first element as top
+
+	for(int i=0;i<g->v;i++){
+		if(!visited[i])
+			post_order_traversal(g,i,visited,postOrder);
+	}
+
+	//reverse the graph : O(E)
+	//we need to create a new graph
+
+	graph*Gr = create_graph(g->v,g->e);
+	
+	//O(V+E)
+	for(int i=0;i<g->v;i++){
+		ListNode* itr = &(g->list[i]);
+		itr=itr->next;
+		while(itr->vertex!=g->list[i].vertex){
+			add_edge(Gr,itr->vertex,i);
+			itr = itr->next;
+		}
+	}
+	//reversing is easier in adjacency matrix
+
+	//pull element one by one out of the stack and peform dfs from them, all the reachable elements would get printed
+	int visited2[Gr->v] = {0};
+	while(top>=0){
+		int u = postOrder[top];
+		if(!visited2[u]){
+			print_component(Gr,u,visited2);
+			cout<<endl;
+		}
+		top--;
+	}
+}
+
 int main(){
-	graph *g  = create_graph(6,14);
-	g?cout<<"created":cout<<"not-created";
-	cout<<endl;
+	graph *g  = create_graph(5,5);
 	
 	add_edge(g,1,0);
 	add_edge(g,0,2);
-	add_edge(g,0,3);
 	add_edge(g,2,1);
+	add_edge(g,0,3);
 	add_edge(g,3,4);
-
-	add_edge(g,0,1);
-	add_edge(g,2,0);
-	add_edge(g,3,0);
-	add_edge(g,1,2);
-	add_edge(g,4,3);
-
-	display_graph(g);
-	bridge(g);
-		
-	cout<<endl;
+	ssc(g);
 	return 0;
 }
