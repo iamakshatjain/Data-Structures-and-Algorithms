@@ -2,6 +2,7 @@
 #include<limits.h>
 #include<iostream>
 #define INF INT_MAX
+#define NIL -1
 
 using namespace std;
 
@@ -253,32 +254,115 @@ void prims(graph* g){
 	}
 }
 
+//compute all pair shortest path
+//Time Complexity - O(V^3)
+//Space Complexity - O(V^2)
+
+initialize_floyd_warshall(graph* g,int** distance,int** path){
+	int v = g->v;
+	for(int i=0;i<v;i++){
+		for(int j=0;j<v;j++){
+			if(i==j){
+				distance[i][j] = 0;
+				path[i][j] = NIL;
+			}
+			else{
+				distance[i][j] = INF;
+				path[i][j] = NIL;
+			}
+		}
+	}
+
+	// for(int i=0;i<v;i++){
+	// 	for(int j=0;j<v;j++){
+	// 		cout<<distance[i][j]<<' ';
+	// 	}
+	// 	cout<<endl;
+	// }
+
+	// for(int i=0;i<v;i++){
+	// 	for(int j=0;j<v;j++){
+	// 		cout<<path[i][j]<<' ';
+	// 	}
+	// 	cout<<endl;
+	// }
+}
+
+void floyd_warshall(graph* g){
+	int** distance;
+	int** path;
+
+	distance = (int **)malloc(sizeof(int *)*g->v);
+	path = (int **)malloc(sizeof(int *)*g->v);
+
+	for(int i=0;i<g->v;i++){
+		distance[i] = (int *)malloc(sizeof(int)*g->v);
+		path[i] = (int *)malloc(sizeof(int)*g->v);
+	}
+
+	initialize_floyd_warshall(g,distance,path);
+
+	for(int u=0;u<g->v;u++){
+		ListNode* itr = &(g->list[u]);
+		itr = itr->next;
+		while(itr->vertex!=g->list[u].vertex){
+			int v = itr->vertex;
+			distance[u][v] = itr->weight;
+			path[u][v] = u;
+			itr = itr->next;
+		}
+	}
+
+
+	for(int k=0;k<g->v;k++){
+		for(int i=0;i<g->v;i++){
+			for(int j=0;j<g->v;j++){
+				if(distance[i][k] != INF && distance[k][j] != INF && distance[i][j] > distance[i][k] + distance[k][j]){
+					distance[i][j] = distance[i][k] + distance[k][j];
+					path[i][j] = path[k][j];
+				}
+			}
+		}
+	}
+
+	cout<<endl;
+	cout<<"Distance Matrix"<<endl;
+	for(int i=0;i<g->v;i++){
+		for(int j=0;j<g->v;j++){
+			if(distance[i][j] == INF)
+				cout<<'I'<<' ';
+			else
+				cout<<distance[i][j]<<' ';
+		}
+		cout<<endl;
+	}
+
+	cout<<endl;
+	cout<<"Path Matrix"<<endl;
+	for(int i=0;i<g->v;i++){
+		for(int j=0;j<g->v;j++){
+			if(distance[i][j] == INF)
+				cout<<'N'<<' ';
+			else
+				cout<<path[i][j]<<' ';
+		}
+		cout<<endl;
+	}
+}
+
 int main(){
 	graph *g;
 	int v,e;
-	g = create_graph(7,8);
+	g = create_graph(4,4);
 	(g==NULL)?cout<<"not-created":cout<<"created";
 	cout<<endl;
 
-	//graph with no-negative edge cycle
+	//graph on gfg
+	add_edge(g,0,1,5);
+	add_edge(g,0,3,10);
+	add_edge(g,1,2,3);
+	add_edge(g,2,3,1);
 	display_graph(g);
-	add_edge(g,0,1,1);
-	add_edge(g,1,0,1);
-	add_edge(g,0,2,3);
-	add_edge(g,2,0,3);
-	add_edge(g,1,3,10);
-	add_edge(g,3,1,10);
-	add_edge(g,1,4,5);
-	add_edge(g,4,1,5);
-	add_edge(g,3,2,4);
-	add_edge(g,2,3,4);
-	add_edge(g,4,5,6);
-	add_edge(g,5,4,6);
-	add_edge(g,5,6,7);
-	add_edge(g,6,5,7);
-	add_edge(g,3,6,3);
-	add_edge(g,6,3,3);
-	display_graph(g);
-	prims(g);
+	floyd_warshall(g);
 	return 0;
 }

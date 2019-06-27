@@ -95,7 +95,7 @@ void DFS_Traversal(graph *g){
 	int visited[g->v] = {0};//all elements initialized to zero
 	for(int i = 0;i<g->v;i++){//for each vertex apply dfs
 		if(visited[i]==0)//this would actually be true once. It traverse all elements in one starting node.
-			DFS(g,i,visited);
+			DFS(g,i,visited);//this loop comes into play when there are more than one connected component in the graph.
 	}
 	cout<<endl;
 }
