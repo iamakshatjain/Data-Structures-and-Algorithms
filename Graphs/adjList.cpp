@@ -458,7 +458,7 @@ int check_cycle_util(graph*g,int u,int visited[],int parent){
 	return 0;
 }
 
-void detect_cycle(graph* g){
+void detect_cycle_undirected(graph* g){
 	int visited[g->v] = {0};
 
 	for(int i=0;i<g->v;i++){//this would keep care for the disconnected components
@@ -474,20 +474,57 @@ void detect_cycle(graph* g){
 	return;	
 }
 
+//Detecting a cycle in a directed graph
+//Time Complexity : O(V+E)
+//Space Complexity : O(V)
+bool flag = false;
+void check_cycle_util_directed(graph* g,int u,int grey[],int black[]){
+	if(!grey[u] && !black[u]){
+		grey[u] = 1; 
+	}
+	else if(black[u] == 0){
+		cout<<"cycle exists"<<endl;
+		flag = true;
+		return;
+	}
+
+	ListNode* itr = &(g->list[u]);
+	itr = itr->next;
+	while(itr->vertex!=g->list[u].vertex){
+		int v = itr->vertex;
+		check_cycle_util_directed(g,v,grey,black);
+		itr = itr->next;
+	}
+
+	black[u] = 1;
+	grey[u] = 0;
+}
+
+void detect_cycle_directed(graph* g){
+	int black[g->v]={0};
+	int grey[g->v]={0};
+
+	for(int i=0;i<g->v;i++){
+		if(!grey[i]&&!black[i]){
+			check_cycle_util_directed(g,i,grey,black);	
+		}
+	}
+	if(!flag)
+		cout<<"cycle doesn't exist"<<endl;
+}
+
 int main(){
-	graph *g  = create_graph(5,8);
+	graph *g  = create_graph(7,8);
 	
 	//this graph contains a cycle
 	add_edge(g,0,1);
-	add_edge(g,1,0);
-	add_edge(g,1,2);
-	add_edge(g,1,3);
 	add_edge(g,0,2);
-	add_edge(g,2,0);
-	add_edge(g,2,1);
-	add_edge(g,3,1);
-	add_edge(g,3,4);
+	add_edge(g,1,3);
+	add_edge(g,2,3);
 	add_edge(g,4,3);
-	detect_cycle(g);
+	add_edge(g,4,5);
+	add_edge(g,5,6);
+	// add_edge(g,6,4);
+	detect_cycle_directed(g);
 	return 0;
 }
