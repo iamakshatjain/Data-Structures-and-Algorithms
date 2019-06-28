@@ -442,14 +442,52 @@ void ssc(graph *g){
 	}
 }
 
+int check_cycle_util(graph*g,int u,int visited[],int parent){
+	visited[u] = 1;
+	ListNode*itr = &(g->list[u]);
+	itr = itr->next;
+	while(itr->vertex!=g->list[u].vertex){
+		int v = itr->vertex;
+		if(!visited[v])
+			return check_cycle_util(g,v,visited,u);
+		else if(v != parent){
+			return 1;
+		}
+		itr = itr->next;
+	}
+	return 0;
+}
+
+void detect_cycle(graph* g){
+	int visited[g->v] = {0};
+
+	for(int i=0;i<g->v;i++){//this would keep care for the disconnected components
+		if(!visited[i]){
+			if(check_cycle_util(g,i,visited,-1)){
+				cout<<"cycle exists"<<endl;
+				return;
+			}
+		}
+	}
+
+	cout<<"cycle doesn't exist"<<endl;
+	return;	
+}
+
 int main(){
-	graph *g  = create_graph(5,5);
+	graph *g  = create_graph(5,8);
 	
+	//this graph contains a cycle
+	add_edge(g,0,1);
 	add_edge(g,1,0);
+	add_edge(g,1,2);
+	add_edge(g,1,3);
 	add_edge(g,0,2);
+	add_edge(g,2,0);
 	add_edge(g,2,1);
-	add_edge(g,0,3);
+	add_edge(g,3,1);
 	add_edge(g,3,4);
-	ssc(g);
+	add_edge(g,4,3);
+	detect_cycle(g);
 	return 0;
 }
