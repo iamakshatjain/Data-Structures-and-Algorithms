@@ -164,7 +164,7 @@ void Topological_sort(graph *g){
 		while(itr->vertex!=g->list[i].vertex){
 			indegree[itr->vertex]++;
 			indcount++;
-			if(indcount>g->e){
+			if(indcount>g->e){//#important
 				cout<<"maybe undirected/cycle"<<endl;
 				return;
 			}
@@ -513,18 +513,87 @@ void detect_cycle_directed(graph* g){
 		cout<<"cycle doesn't exist"<<endl;
 }
 
+//Calculate depth of directed graph
+//O(V+E)
+int calculate_indegree(graph *g,int indegree[]){
+	int indegreeCount = 0;
+	int v = g->v;//number of vertices in the graph
+	for(int u=0;u<v;u++){
+		ListNode* itr = &(g->list[u]);
+		itr = itr->next;
+		while(itr->vertex!=g->list[u].vertex){
+			indegree[itr->vertex]++;
+			indegreeCount++;
+			if(indegreeCount > g->e){
+				cout<<"may be undirected graph/cycle"<<endl;
+				return 1;
+			}
+			itr = itr->next;
+		}
+	}
+
+	return 0;
+}
+
+int find_depth_directed(graph *g){
+	int depth = 0;
+	int indegree[g->v] = {0};
+	int visited[g->v] = {0};
+	int noOfVertexProcessed = 0;
+	if(calculate_indegree(g,indegree)){
+		return 0;//0 means error
+	}
+
+	int queue[2*g->v] = {0};
+	int rear = -1;
+	int front = -1;
+
+	for(int i=0;i<g->v;i++){
+		if(indegree[i] == 0){
+			queue[++rear] = i;//enqueue 
+		}
+	}
+
+	queue[++rear] = -1;//this marks the end of the level 
+
+	while(front!=rear && noOfVertexProcessed<g->v){
+		int val = queue[++front];
+
+		if(val == -1){
+			depth++;
+			queue[++rear] = -1;//this marks the end of the level 
+		}
+
+		else{
+			ListNode* itr = &(g->list[val]);
+			itr = itr->next;
+			while(itr->vertex!=g->list[val].vertex){
+				indegree[itr->vertex]--;
+				
+				if(indegree[itr->vertex] == 0){//only the vertex that makes it zero enqueues it.
+					queue[++rear] = itr->vertex;//enqueue
+				}
+
+				itr=itr->next;
+			}
+			noOfVertexProcessed++;
+		}
+	}
+	return depth;
+}
+
 int main(){
-	graph *g  = create_graph(7,8);
+	graph *g  = create_graph(4,4);
 	
 	//this graph contains a cycle
 	add_edge(g,0,1);
 	add_edge(g,0,2);
+	// add_edge(g,0,5);
 	add_edge(g,1,3);
 	add_edge(g,2,3);
-	add_edge(g,4,3);
-	add_edge(g,4,5);
-	add_edge(g,5,6);
+	// add_edge(g,3,5);
+	// add_edge(g,4,5);
 	// add_edge(g,6,4);
-	detect_cycle_directed(g);
+	cout<<"depth : "<<find_depth_directed(g)<<endl;
 	return 0;
 }
