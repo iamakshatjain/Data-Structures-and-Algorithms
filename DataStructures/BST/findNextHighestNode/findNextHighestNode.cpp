@@ -60,6 +60,34 @@ Node* add_node(int val){
 	}
 }
 
+int find_next_highest_node(int val){
+	//here the value provided is not the pointer
+	int left_parent = -1;
+	int next_highest = -1;
+	Node* itr = root;
+	while(itr->val!=val){
+		if(val<=itr->val){
+			left_parent = itr->val;
+			itr = itr->left;
+		}
+		else
+			itr = itr->right; 
+	}
+
+	if(itr->right){
+		itr = itr->right;
+		while(itr->left!=NULL){
+			itr = itr->left;
+		}
+		next_highest = itr->val;
+		return next_highest;
+	}
+
+	return left_parent;
+
+	return 0;
+}
+
 int main(){
 	int n;
 	cout<<"enter no. of nodes : ";
@@ -70,6 +98,15 @@ int main(){
 		if(add_node(val))
 			cout<<"node added"<<endl;
 	}
+
+	int x;
+	cout<<"enter x : "<<endl;
+	cin>>x;
+	int ans = find_next_highest_node(x);
+	if(ans == -1)
+		cout<<"This is the highest node";
+	else
+		cout<<"Next highest node is : "<<ans<<endl;
 
 	return 0;
 }
