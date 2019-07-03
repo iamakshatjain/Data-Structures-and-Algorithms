@@ -76,12 +76,54 @@ void count_paths(graph *g,int s,int d){
 	}
 }
 
+//Check for existence of a sink : O(V)
+int isSink(graph* g,int i){
+	int n = g->v;
+	//checking row i
+	for(int c = 0;c<n;c++){
+		if(g->adj[i][c])
+			return 0;
+	}
+
+	//checking for ith column
+	for(int r=0;r<n;r++){
+		if(!g->adj[r][i] && r!=i){
+			return 0;
+		}
+	}
+	return 1;
+}
+
+int eliminate_non_sink(graph* g){
+	int i,j;
+	i = 0;
+	j = 0;
+	int n = g->v;
+	while(i<n && j<n){
+		if(g->adj[i][j] == 0)
+			j++;
+		else
+			i++;
+	}
+
+	if(i>=n)
+		return -1;
+	if(!isSink(g,i))
+		return -1;
+	return i;
+}
+
+
 int main(){
 
-	graph *g  = create_graph(4,5);
+	graph *g  = create_graph(6,5);
 	g?cout<<"created":cout<<"not-created";
 	cout<<endl;
 	display_matx(g);
-	count_paths(g,0,1);
+	int ans = eliminate_non_sink(g);
+	if(ans == -1)
+		cout<<"No sink exists"<<endl;
+	else
+		cout<<"sink : "<<ans<<endl;
 	return 0;
 }
