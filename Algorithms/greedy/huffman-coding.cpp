@@ -166,6 +166,31 @@ node* extractMin(heap* h){
     return min_node;
 }
 
+void displayCodesUtil(node* root, vector<int> dir){
+    if(root == NULL)
+        return;
+
+    if(root->left==NULL && root->right == NULL){
+        cout<<root->data<<" - ";
+        for(int i=0; i<dir.size(); i++){
+            cout<<dir[i]<<" ";
+        }
+        cout<<endl;
+        return;
+    }
+
+    dir.push_back(0);
+    displayCodesUtil(root->left, dir);
+    dir.pop_back();
+    dir.push_back(1);
+    displayCodesUtil(root->right, dir);
+}
+
+void displayCodes(node* root){
+    vector<int> directions;
+    displayCodesUtil(root, directions);
+}
+
 int main(){
 
     int n = 6;
@@ -237,6 +262,7 @@ int main(){
     //only need to traverse this only node like a tree and make a table
     //all the leaf nodes are like elements
     //traverse paths to all the leaf nodes
+    displayCodes(h->array[0]);
 
     return 0;
 }
