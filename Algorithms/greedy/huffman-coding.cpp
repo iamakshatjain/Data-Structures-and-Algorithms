@@ -1,4 +1,5 @@
 //min heap
+//todo : repeating d issue
 #define HEAP_TYPE 0
 #include<bits/stdc++.h>
 #include<iostream>
@@ -31,7 +32,7 @@ heap* createHeap(int capacity, int heapType){
 }
 
 int leftChild(heap* h, int i){
-    if(i >= h->capacity || i<0 || 2*i+1>=h->capacity)
+    if(i >= h->capacity || i<0 || 2*i+1>=h->count)
         return -1;
     else
     {
@@ -41,7 +42,7 @@ int leftChild(heap* h, int i){
 
 int rightChild(heap *h, int i)
 {
-    if (i >= h->capacity || i < 0 || 2 * i + 2 >= h->capacity)
+    if (i >= h->capacity || i < 0 || 2 * i + 2 >= h->count)
         return -1;
     else
     {
@@ -83,9 +84,9 @@ void percolateDown(heap* h, int i){
         // h->array[i]->left = temp_l;
         // h->array[i]->right = temp_r;
 
-        node* temp = h->array[min];
-        h->array[min] = h->array[i];
-        h->array[i] = temp;
+        node* temp = h->array[i];
+        h->array[i] = h->array[min];
+        h->array[min] = temp;
 
         percolateDown(h, min);
     }
@@ -156,17 +157,12 @@ void displayHeap(heap* h){
 }
 
 node* extractMin(heap* h){
-    // cout<<"extracting min..."<<endl;
     if(h->count<=0)
         return NULL;
-
     node* min_node = h->array[0];
-    h->array[0] = h->array[h->count-1];
     h->count--;
-    // cout<<"percolating starts"<<endl;
+    h->array[0] = h->array[h->count];
     percolateDown(h, 0);
-    // cout<<"after percolating"<<endl;
-    // cout<<min_node->data<<" "<<min_node->value<<endl;
     return min_node;
 }
 
@@ -219,15 +215,14 @@ int main(){
     nw5->data = 'f';
     nw5->value = 85;
     insert(h, nw5);
-
-    // buildMinHeap(h);
-    displayHeap(h);
     cout<<"======================================================"<<endl;
     for(int i=1; i<n; i++){
+        node* left_child = extractMin(h);
+        node* right_child = extractMin(h);
         node* temp = (node *)malloc(sizeof(node));
-        temp->left = extractMin(h);
+        temp->left = left_child;
         cout<<"left - "<<temp->left->data<<" "<<temp->left->value<<endl;
-        temp->right = extractMin(h);
+        temp->right = right_child;
         cout << "right - " << temp->right->data << " " << temp->right->value << endl;
         temp->value = temp->left->value + temp->right->value;
         // temp->data = *strcat(&temp->left->data, &temp->right->data);
@@ -239,6 +234,9 @@ int main(){
     cout << "======================================================" << endl;
 
     displayHeap(h);
+    //only need to traverse this only node like a tree and make a table
+    //all the leaf nodes are like elements
+    //traverse paths to all the leaf nodes
 
     return 0;
 }
